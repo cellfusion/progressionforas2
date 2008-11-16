@@ -1,0 +1,1 @@
+/** * @author Mk-10:cellfusion */import jp.progression.Progression;import jp.progression.core.SceneId;class AboutPage extends MovieClip {	public function AboutPage()	{	}		private function onRelease():Void	{		Progression.gotoScene(new SceneId("/index/contact"));	}}
