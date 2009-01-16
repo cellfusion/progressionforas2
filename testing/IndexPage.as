@@ -1,0 +1,1 @@
+﻿/** * @author Mk-10:cellfusion */import jp.progression.Progression;import jp.progression.core.SceneId;class IndexPage extends MovieClip {	public function IndexPage()	{	}		private function onRelease():Void	{		Progression.gotoScene(new SceneId("/index/about"));	}}
