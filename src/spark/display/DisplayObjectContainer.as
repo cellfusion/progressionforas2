@@ -149,7 +149,14 @@ dynamic class spark.display.DisplayObjectContainer extends InteractiveObject
 	
 	public function contains (child:DisplayObject) : Boolean
 	{
-		return (child instanceof "DisplayObjectContainer");
+		var l:Number = children.length;
+		for (var i:Number = 0; i < l; i++) {
+			if (children[i] == child) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	public function getChildAt (index:Number) : DisplayObject
