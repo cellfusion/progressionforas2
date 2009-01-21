@@ -4,16 +4,16 @@
 //
 // $Id: DisplayObject.as 4 2007-03-26 03:31:45Z yossy $
 //******************************************************************************
-
-import spark.events.*;
+import jp.progression.utils.ObjectUtil;import spark.events.*;
 import spark.display.DisplayObjectContainer;
 import spark.display.StageObject;
+
 import flash.display.BitmapData;
 import flash.geom.Rectangle;
 import flash.geom.Point;
 import flash.geom.Transform;
-import mx.utils.Delegate;
 
+import mx.utils.Delegate;
 /**
  * ディスプレイ上に表示される全てのオブジェクトの基礎となる抽象クラス。
  * 
@@ -24,320 +24,371 @@ import mx.utils.Delegate;
 dynamic class spark.display.DisplayObject extends EventDispatcher
 {
 	private var displayObject:MovieClip = null;
-	
 	private var parentObject:DisplayObjectContainer = null;
 	private var rootObject:DisplayObject = null;
 	private var stageObject:StageObject = null;
-	
+	private var properties:Object;
+
 	// MovieClipをラップする
 	//（但し、通常はDisplayObjectのコンストラクタを呼ぶような
 	// 使い方はしないこと。）
-	public function DisplayObject (displayObject:MovieClip)
+	public function DisplayObject(displayObject:MovieClip)
 	{
 		this.displayObject = displayObject;
+		properties = {};
 	}
-	
+
 	// addChildした時に呼び出される。
 	// ホントはAS3みたいにコンストラクタに書きたいコードはここへ
-	public function construct () : Void
+	public function construct():Void
 	{
 	}
-	
-	// これを呼び出して親を設定
-	private function setParent (parent:DisplayObjectContainer) : Void
+
+	/**
+	 * 親を設定
+	 */
+	private function setParent(parent:DisplayObjectContainer):Void
 	{
 		parentObject = parent;
 	}
-	// これを呼び出してrootを設定
-	private function setRoot (root:DisplayObject) : Void
+
+	/**
+	 * rootを設定
+	 */
+	private function setRoot(root:DisplayObject):Void
 	{
 		rootObject = root;
 	}
-	// これを呼び出してstageを設定
-	private function setStage (stage:StageObject) : Void
+
+	/**
+	 * stageを設定
+	 */
+	private function setStage(stage:StageObject):Void
 	{
 		stageObject = stage;
 	}
-	// 必要あらばこれをオーバーライドしてaddChild時のMC生成処理を書く
-	private function createDisplayObject () : Void
+
+	/**
+	 * 必要あらばこれをオーバーライドしてaddChild時のMC生成処理を書く
+	 */
+	private function createDisplayObject():Void
 	{
 		var d:MovieClip = parentObject["displayObject"];
 		var n:Number = d.getNextHighestDepth();
 		
-		displayObject = d.createEmptyMovieClip("display"+n, n);
+		displayObject = d.createEmptyMovieClip("display" + n, n);
+		
+		// createDisplayObject 以前に設定したプロパティを設定する
+		ObjectUtil.setProperties(displayObject, properties);
+		
+		// mask が設定されている場合は設定する
+		if (maskObject) mask = maskObject;
 	}
-	// 必要あらばこれをオーバーライドしてremoveChild時のMC解体処理を書く
-	private function removeDisplayObject () : Void
+	/**
+	 * 必要あらばこれをオーバーライドしてremoveChild時のMC解体処理を書く
+	 */
+	private function removeDisplayObject():Void
 	{
 		displayObject.removeMovieClip();
 	}
-	// 謎のプロパティはMCに委譲
-	public function __resolve (name:String) : Object
+
+	/**
+	 * 謎のプロパティはMCに委譲
+	 * displayObject 作成以前は _initProperty にためる
+	 */
+	public function __resolve(name:String):Object
 	{
-		return displayObject[name];
+		return displayObject ? displayObject[name] : properties[name];
 	}
-	
-	
+
 	// properties
-	
-	public function set alpha (n:Number) : Void
+	public function set alpha(n:Number):Void
 	{
 		displayObject._alpha = n;
+		properties._alpha = n;
 	}
-	public function get alpha () : Number
+
+	public function get alpha():Number
 	{
-		return displayObject._alpha;
+		return displayObject ? displayObject._alpha : properties._alpha;
 	}
-	
-	public function set blendMode (o:Object) : Void
+
+	public function set blendMode(o:Object):Void
 	{
 		displayObject.blendMode = o;
+		properties.blendMode = o;
 	}
-	public function get blendMode () : Object
+
+	public function get blendMode():Object
 	{
-		return displayObject.blendMode;
+		return displayObject ? displayObject.blendMode : properties.blendMode;
 	}
-	
-	public function set cacheAsBitmap (b:Boolean) : Void
+
+	public function set cacheAsBitmap(b:Boolean):Void
 	{
 		displayObject.cacheAsBitmap = b;
+		properties.cacheAsBitmap = b;
 	}
-	public function get cacheAsBitmap () : Boolean
+
+	public function get cacheAsBitmap():Boolean
 	{
-		return displayObject.cacheAsBitmap;
+		return displayObject ? displayObject.cacheAsBitmap : properties.cacheAsBitmap;
 	}
-	
-	public function set filters (a:Array) : Void
+
+	public function set filters(a:Array):Void
 	{
 		displayObject.filters = a;
+		properties.filters = a;
 	}
-	public function get filters () : Array
+
+	public function get filters():Array
 	{
-		return displayObject.filters;
+		return displayObject ? displayObject.filters : properties.filters;
 	}
-	
-	public function set height (n:Number) : Void
+
+	public function set height(n:Number):Void
 	{
 		displayObject._height = height;
+		properties._height = height;
 	}
-	public function get height () : Number
+
+	public function get height():Number
 	{
-		return displayObject._height;
+		return displayObject ? displayObject._height : properties._height;
 	}
-	
+
 	private var maskObject:DisplayObject = null;
-	public function set mask (o:DisplayObject) : Void
+
+	public function set mask(o:DisplayObject):Void
 	{
-		if(o == null)
-		{
+		if(o == null) {
 			displayObject.setMask(null);
-		}
-		else
-		{
+		} else {
 			displayObject.setMask(o["getDisplayObject"]());
 		}
 		
 		maskObject = o;
 	}
-	public function get mask () : DisplayObject
+
+	public function get mask():DisplayObject
 	{
 		return maskObject;
 	}
-	
-	public function get mouseX () : Number
+
+	public function get mouseX():Number
 	{
 		return displayObject._xmouse;
 	}
-	public function get mouseY () : Number
+
+	public function get mouseY():Number
 	{
 		return displayObject._ymouse;
 	}
-	
-	public function set name (s:String) : Void
+
+	public function set name(s:String):Void
 	{
 		displayObject._name = s;
 	}
-	public function get name () : String
+
+	public function get name():String
 	{
 		return displayObject._name;
 	}
-	
-	public function set opaqueBackground (n:Number) : Void
+
+	public function set opaqueBackground(n:Number):Void
 	{
-		displayObject.opaqueBackground = n;
+		displayObject.opaqueBackground = n;		properties.opaqueBackground = n;
 	}
-	public function get opaqueBackground () : Number
+
+	public function get opaqueBackground():Number
 	{
-		return displayObject.opaqueBackground;
+		return displayObject ? displayObject.opaqueBackground : properties.opaqueBackground;
 	}
-	
-	public function get parent () : DisplayObjectContainer
+
+	public function get parent():DisplayObjectContainer
 	{
 		return parentObject;
 	}
-	public function get root () : DisplayObject
+
+	public function get root():DisplayObject
 	{
 		return rootObject;
 	}
-	
-	public function set rotation (n:Number) : Void
+
+	public function set rotation(n:Number):Void
 	{
 		displayObject._rotation = n;
+		properties._rotation = n;
 	}
-	public function get rotation () : Number
+
+	public function get rotation():Number
 	{
-		return displayObject._rotation;
+		return displayObject ? displayObject._rotation : properties._rotation;
 	}
-	
-	public function set scale9Grid (r:Rectangle) : Void
+
+	public function set scale9Grid(r:Rectangle):Void
 	{
 		displayObject.scale9Grid = r;
+		properties.scale9Grid = r;
 	}
-	public function get scale9Grid () : Rectangle
+
+	public function get scale9Grid():Rectangle
 	{
-		return displayObject.scale9Grid;
+		return displayObject ? displayObject.scale9Grid : properties.scale9Grid;
 	}
-	
-	public function set scaleX (n:Number) : Void
+
+	public function set scaleX(n:Number):Void
 	{
 		displayObject._xscale = n;
+		properties._xscale = n;
 	}
-	public function get scaleX () : Number
+
+	public function get scaleX():Number
 	{
-		return displayObject._xscale;
+		return displayObject ? displayObject._xscale : properties._xscale;
 	}
-	
-	public function set scaleY (n:Number) : Void
+
+	public function set scaleY(n:Number):Void
 	{
 		displayObject._yscale = n;
+		properties._yscale = n;
 	}
-	public function get scaleY () : Number
+
+	public function get scaleY():Number
 	{
-		return displayObject._yscale;
+		return displayObject ? displayObject._yscale : properties._yscale;
 	}
-	
-	public function set scrollRect (r:Rectangle) : Void
+
+	public function set scrollRect(r:Rectangle):Void
 	{
 		displayObject.scrollRect = r;
+		properties.scrollRect = r;
 	}
-	public function get scrollRect () : Rectangle
+
+	public function get scrollRect():Rectangle
 	{
-		return Rectangle(displayObject.scrollRect);
+		return displayObject ? Rectangle(displayObject.scrollRect) : Rectangle(properties.scrollRect);
 	}
-	
-	public function get stage () : StageObject
+
+	public function get stage():StageObject
 	{
 		return stageObject;
 	}
-	
-	public function set transform (t:Transform) : Void
+
+	public function set transform(t:Transform):Void
 	{
 		displayObject.transform = t;
+		properties.transform = t;
 	}
-	public function get transform () : Transform
+
+	public function get transform():Transform
 	{
-		return displayObject.transform;
+		return displayObject ? displayObject.transform : properties.transform;
 	}
-	
-	public function set visible (b:Boolean) : Void
+
+	public function set visible(b:Boolean):Void
 	{
 		displayObject._visible = b;
+		properties._visible = b;
 	}
-	public function get visible () : Boolean
+
+	public function get visible():Boolean
 	{
-		return displayObject._visible;
+		return displayObjct ? displayObject._visible : properties._visible;
 	}
-	
-	public function set width (n:Number) : Void
+
+	public function set width(n:Number):Void
 	{
 		displayObject._width = n;
+		properties._width = n;
 	}
-	public function get width () : Number
+
+	public function get width():Number
 	{
-		return displayObject._width;
+		return displayObject ? displayObject._width : properties._width;
 	}
-	
-	public function set x (n:Number) : Void
+
+	public function set x(n:Number):Void
 	{
 		displayObject._x = n;
+		properties._x = n;
 	}
-	public function get x () : Number
+
+	public function get x():Number
 	{
-		return displayObject._x;
+		return displayObject ? displayObject._x : properties._x;
 	}
-	
-	public function set y (n:Number) : Void
+
+	public function set y(n:Number):Void
 	{
 		displayObject._y = n;
+		properties._y = n;
 	}
-	public function get y () : Number
+
+	public function get y():Number
 	{
-		return displayObject._y;
+		return displayObject ? displayObject._y : properties._y;
 	}
-	
+
 	// methods
-	
-	public function getBounds (targetCoordinateSpace:DisplayObject) : Rectangle
+	public function getBounds(targetCoordinateSpace:DisplayObject):Rectangle
 	{
 		var o:Object = displayObject.getBounds(targetCoordinateSpace.displayObject);
 		
 		return (new Rectangle(o.xMin, o.yMin, o.xMax, o.yMax));
 	}
-	
-	public function globalToLocal (pt:Point) : Point
+
+	public function globalToLocal(pt:Point):Point
 	{
 		var p:Point = pt.clone();
 		displayObject.globalToLocal(p);
 		
 		return p;
 	}
-	
-	public function hitTestObject (obj:DisplayObject) : Boolean
+
+	public function hitTestObject(obj:DisplayObject):Boolean
 	{
 		return displayObject.hitTest(obj.displayObject);
 	}
-	
-	public function hitTestPoint (x:Number, y:Number, shapeFlag:Boolean) : Boolean
+
+	public function hitTestPoint(x:Number, y:Number, shapeFlag:Boolean):Boolean
 	{
 		return displayObject.hitTest(x, y, shapeFlag);
 	}
-	
-	public function localToGlobal (pt:Point) : Point
+
+	public function localToGlobal(pt:Point):Point
 	{
 		var p:Point = pt.clone();
 		displayObject.localToGlobal(p);
 		
 		return p;
 	}
-	
-	public function createBitmapData () : BitmapData
+
+	public function createBitmapData():BitmapData
 	{
 		var b:BitmapData = new BitmapData(width, height, true, 0);
 		b.draw(displayObject);
 		
 		return b;
 	}
-	
-	public function dispatchEvent (event:Event) : Boolean
+
+	public function dispatchEvent(event:Event):Boolean
 	{
 		// 自分の親から根元までのリストを作る
 		var path:Array = getDispatchPath();
 		
 		event["setTarget"](this);
 		
-		if(path.length > 0)
-		{
+		if(path.length > 0) {
 			// Capture Phase
 			event["setEventPhase"](EventPhase.CAPTURING_PHASE);
 			var len:Number = path.length;
 			// 根元→親まで辿る
-			for(var i:Number=0; i<len; ++i)
-			{
+			for(var i:Number = 0;i < len; ++i) {
 				path[i].dispatchMyListeners(event);
 				
 				// stopPropagation()呼び出しで終了
-				if(event["getContinue"]()==1)
-				{
+				if(event["getContinue"]() == 1) {
 					return;
 				}
 			}
@@ -348,90 +399,85 @@ dynamic class spark.display.DisplayObject extends EventDispatcher
 			
 			// Bubbling Phase
 			// （bubblingが許可されていれば）
-			if(event.bubbles)
-			{
+			if(event.bubbles) {
 				event["setEventPhase"](EventPhase.BUBBLING_PHASE);
 				// 親→根元まで辿る
-				for(var i:Number=(len-1); i>=0; --i)
-				{
+				for(var i:Number = (len - 1);i >= 0; --i) {
 					path[i].dispatchMyListeners(event);
 					
 					// stopPropagation()呼び出しで終了
-					if(event["getContinue"]()==1)
-					{
+					if(event["getContinue"]() == 1) {
 						break;
 					}
 				}
 			}
 		}
-		else
-		{
+		else {
 			event["setEventPhase"](EventPhase.AT_TARGET);
 			dispatchMyListeners(event);
 		}
 		
 		return event.isDefaultPrevented();
 	}
+
 	private var dispatchPath:Array;
-	private function getDispatchPath () : Array
+
+	private function getDispatchPath():Array
 	{
-		if(dispatchPath == undefined)
-		{
+		if(dispatchPath == undefined) {
 			updateDispatchPath();
 		}
 		return dispatchPath;
 	}
-	private function parentIsChanged () : Void
+
+	private function parentIsChanged():Void
 	{
 		updateDispatchPath();
 	}
-	private function updateDispatchPath () : Void
+
+	private function updateDispatchPath():Void
 	{
 		dispatchPath = new Array();
 		createDispatchPath(dispatchPath);
 		// 自分自身が含まれているので削除
 		dispatchPath.pop();
 	}
-	private function createDispatchPath (path:Array) : Void
+
+	private function createDispatchPath(path:Array):Void
 	{
-		if(parentObject != null)
-		{
+		if(parentObject != null) {
 			// rootのparentはStageとなるので、Stageで終了すれば良い
 			parentObject["createDispatchPath"](path);
 		}
 		
 		path.push(this);
 	}
-	
-	public function willTrigger (type:String) : Boolean
+
+	public function willTrigger(type:String):Boolean
 	{
 		// 自分の親から根元までのリストを作る
 		var path:Array = new Array();
 		createDispatchPath(path);
 		
 		var len:Number = path.length;
-		for(var i:Number=0; i<len; ++i)
-		{
+		for(var i:Number = 0;i < len; ++i) {
 			if(path[i].hasEventListener(type)) return true;
 		}
 		
 		return false;
 	}
-	
-	public function addEventListener (type:String, listener:Function, useCapture:Boolean, priority:Number) : Void
+
+	public function addEventListener(type:String, listener:Function, useCapture:Boolean, priority:Number):Void
 	{
 		super.addEventListener(type, listener, useCapture, priority);
 		
 		// リスナーが登録されてからはじめてイベント配信を始める
 		// （そうしないと全クリップで毎フレームdispatchEnterFrameが呼び出されて恐ろしい事に・・・）
-		if(type == EventType.ENTER_FRAME)
-		{
-			if(displayObject.onEnterFrame==null)
-			{
+		if(type == EventType.ENTER_FRAME) {
+			if(displayObject.onEnterFrame == null) {
 				displayObject.onEnterFrame = Delegate.create(this, dispatchEnterFrame);
 				
-				if(eventEnterFrame == null)
-				{
+				if(eventEnterFrame == null) {
 					eventEnterFrame = new Event(EventType.ENTER_FRAME, false, false);
 					eventEnterFrame["setEventPhase"](EventPhase.AT_TARGET);
 					eventEnterFrame["setTarget"](this);
@@ -439,28 +485,29 @@ dynamic class spark.display.DisplayObject extends EventDispatcher
 			}
 		}
 	}
-	public function removeEventListener (type:String, listener:Function, useCapture:Boolean) : Void
+
+	public function removeEventListener(type:String, listener:Function, useCapture:Boolean):Void
 	{
 		super.removeEventListener(type, listener, useCapture);
 		
-		if(type == EventType.ENTER_FRAME && !hasEventListener(type))
-		{
+		if(type == EventType.ENTER_FRAME && !hasEventListener(type)) {
 			displayObject.onEnterFrame = null;
 		}
 	}
-	
+
 	private var eventEnterFrame:Event = null;
-	private function dispatchEnterFrame () : Void
+
+	private function dispatchEnterFrame():Void
 	{
 		dispatchMyListeners(eventEnterFrame);
 	}
-	
-	private function getDisplayObject () : Object
+
+	private function getDisplayObject():Object
 	{
 		return displayObject;
 	}
-	
-	private function toString () : String
+
+	private function toString():String
 	{
 		return getDisplayObject().toString();
 	}

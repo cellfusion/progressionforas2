@@ -30,6 +30,9 @@ dynamic class spark.display.Sprite extends DisplayObjectContainer
 		super.createDisplayObject();
 		
 		buildGraphics();
+		
+		// hitArea が設定されている場合は設定する
+		if (_hitArea) hitArea = _hitArea;
 	}
 	
 	// Graphicsオブジェクトの構築
@@ -54,10 +57,11 @@ dynamic class spark.display.Sprite extends DisplayObjectContainer
 	public function set enabled (b:Boolean) : Void
 	{
 		displayObject.enabled = b;
+		properties.enabled = b;
 	}
 	public function get enabled () : Boolean
 	{
-		return displayObject.enabled;
+		return displayObject ? displayObject.enabled : properties.enabled;
 	}
 	
 	public function get graphics () : Graphics
@@ -78,10 +82,11 @@ dynamic class spark.display.Sprite extends DisplayObjectContainer
 	public function set useHandCursor (b:Boolean) : Void
 	{
 		displayObject.useHandCursor = b;
+		properties.useHandCursor = b;
 	}
 	public function get useHandCursor () : Boolean
 	{
-		return displayObject.useHandCursor;
+		return displayObject ? displayObject.useHandCursor : properties.useHandCursor;
 	}
 	
 	public function startDrag (lockCenter:Boolean, bounds:Rectangle) : Void

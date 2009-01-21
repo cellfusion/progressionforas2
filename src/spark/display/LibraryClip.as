@@ -38,6 +38,12 @@ dynamic class spark.display.LibraryClip extends MovieClipObject
 		
 		displayObject = d.attachMovie(id, "display"+n, n);
 		
+		// createDisplayObject 以前に設定したプロパティを設定する
+		ObjectUtil.setProperties(displayObject, properties);
+		
+		// mask が設定されている場合は設定する
+		if (maskObject) mask = maskObject;
+		
 		buildGraphics();
 	}
 }

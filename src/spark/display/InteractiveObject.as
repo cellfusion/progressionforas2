@@ -31,19 +31,21 @@ dynamic class spark.display.InteractiveObject extends DisplayObject
 	public function set contextMenu (c:ContextMenu) : Void
 	{
 		displayObject.menu = c;
+		properties.menu = c;
 	}
 	public function get contextMenu () : ContextMenu
 	{
-		return displayObject.menu;
+		return displayObject ? displayObject.menu : properties.menu;
 	}
 	
 	public function set focusRect (o:Object) : Void
 	{
 		displayObject._focusrect = Boolean(o);
+		properties._focusrect = Boolean(o);
 	}
 	public function get focusRect () : Object
 	{
-		return displayObject._focusrect;
+		return displayObject ? displayObject._focusrect : properties._focusrect;
 	}
 	
 	public function set mouseEnabled (b:Boolean) : Void
@@ -58,19 +60,21 @@ dynamic class spark.display.InteractiveObject extends DisplayObject
 	public function set tabEnabled (b:Boolean) : Void
 	{
 		displayObject.tabEnabled = b;
+		properties.tabEnabled = b;
 	}
 	public function get tabEnabled () : Boolean
 	{
-		return displayObject.tabEnabled;
+		return displayObject ? displayObject.tabEnabled : properties.tabEnabled;
 	}
 	
 	public function set tabIndex (n:Number) : Void
 	{
 		displayObject.tabIndex = n;
+		properties.tabIndex = n;
 	}
 	public function get tabIndex () : Number
 	{
-		return displayObject.tabIndex;
+		return displayObject ? displayObject.tabIndex : properties.tabIndex;
 	}
 	
 	// メソッド
