@@ -4,8 +4,7 @@
 //
 // $Id: LibraryClip.as 4 2007-03-26 03:31:45Z yossy $
 //******************************************************************************
-
-import spark.display.MovieClipObject;
+import jp.progression.utils.ObjectUtil;import spark.display.MovieClipObject;
 
 /**
  * リンケージを設定したライブラリ内のMCを生成します。

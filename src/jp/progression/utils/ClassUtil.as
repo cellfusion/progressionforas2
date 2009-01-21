@@ -1,0 +1,1 @@
+﻿/** * @author Mk-10:cellfusion */class jp.progression.utils.ClassUtil {}
