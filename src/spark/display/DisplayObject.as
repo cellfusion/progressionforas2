@@ -98,6 +98,7 @@ dynamic class spark.display.DisplayObject extends EventDispatcher
 	 */
 	public function __resolve(name:String):Object
 	{
+		if (!properties[name]) properties[name] = {};
 		return displayObject ? displayObject[name] : properties[name];
 	}
 
