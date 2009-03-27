@@ -1,6 +1,4 @@
-﻿import jp.progression.Progression;
-import jp.progression.core.SceneId;
-import jp.progression.scenes.proto.SceneObject;
+﻿import jp.progression.Progression;import jp.progression.scenes.SceneId;import jp.progression.scenes.SceneObject;
 /**
  * 
  * Progression for ActionScript 2.0

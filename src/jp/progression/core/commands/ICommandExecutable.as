@@ -1,0 +1,1 @@
+﻿/** * @author Mk-10:cellfusion */import jp.progression.core.commands.CommandExecutor;import jp.progression.events.IEventIntegrator;interface jp.progression.core.commands.ICommandExecutable extends IEventIntegrator {}

@@ -1,0 +1,1 @@
+﻿import jp.progression.events.EventIntegrator;/** * @author Mk-10:cellfusion */class jp.progression.core.commands.CommandExecutor extends EventIntegrator {	public function CommandExecutor()	{		super();	}}
